@@ -1,13 +1,12 @@
 import copy
 import os
 import logging
-from py_dotenv import read_dotenv
+from dotenv import load_dotenv
 
 import peewee
 import discord
 
-dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
-read_dotenv(dotenv_path)
+load_dotenv()
 
 TOKEN: str = os.getenv("TOKEN") or ""
 
