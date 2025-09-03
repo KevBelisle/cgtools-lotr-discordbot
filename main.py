@@ -203,7 +203,7 @@ async def card(
                 name="Found in Repackaged Products",
                 value="\n".join(
                     [
-                        f"{productCard.Quantity}x card #{productCard.Number} in [{productCard.Product.Name}](https://lotr.cardgame.tools/#/products/{productCard.Product.Code}){" Nightmare Deck" if productCard.Product.Type == "Nightmare_Expansion" else ""}{f" ({productCard.Product.Cycle})" if productCard.Product.Cycle and not productCard.Product.IsRepackage else ""}"
+                        f"{productCard.Quantity}x card #{productCard.Number} in [{productCard.Product.Name}](https://lotr.cardgame.tools/#/products/{productCard.Product.Code}){" Nightmare Deck" if productCard.Product.Type == "Nightmare_Expansion" else ""}"
                         for productCard in card.ProductCards
                         if productCard.Product.IsRepackage
                     ]
@@ -218,7 +218,7 @@ async def card(
                 name="Found in Original Releases",
                 value="\n".join(
                     [
-                        f"{productCard.Quantity}x card #{productCard.Number} in [{productCard.Product.Name}](https://lotr.cardgame.tools/#/products/{productCard.Product.Code}){" Nightmare Deck" if productCard.Product.Type == "Nightmare_Expansion" else ""}{f" ({productCard.Product.Cycle})" if productCard.Product.Cycle and not productCard.Product.IsRepackage else ""}"
+                        f"{productCard.Quantity}x card #{productCard.Number} in [{productCard.Product.Name}](https://lotr.cardgame.tools/#/products/{productCard.Product.Code}){" Nightmare Deck" if productCard.Product.Type == "Nightmare_Expansion" else ""}{f" ({productCard.Product.Cycle} cycle)" if productCard.Product.Cycle else ""}"
                         for productCard in card.ProductCards
                         if not productCard.Product.IsRepackage
                     ]
