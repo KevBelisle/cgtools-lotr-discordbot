@@ -1,13 +1,14 @@
-from dataclasses import fields
 import copy
 import os
 import logging
-from dotenv import load_dotenv
+from py_dotenv import read_dotenv
 
 import peewee
 import discord
 
-load_dotenv()
+dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+read_dotenv(dotenv_path)
+
 TOKEN: str = os.getenv("TOKEN") or ""
 
 database = peewee.SqliteDatabase("lotr_lcg.db")
@@ -123,6 +124,36 @@ async def on_ready() -> None:
 # async def echo_specific(interaction: discord.Interaction, message: str) -> None:
 #     await interaction.response.send_message(message)
 
+sphere_emojis = {
+    "Baggins": "<:baggins:1412792677212098611>",
+    "Fellowship": "<:fellowship:1412792695100805191>",
+    "Leadership": "<:leadership:1412792716143628438>",
+    "Lore": "<:lore:1412792726033797130>",
+    "Neutral": "<:neutral:1412798425598136461>",
+    "Spirit": "<:spirit:1412792758527070343>",
+    "Tactics": "<:tactics:1412792768627085464>",
+}
+
+sphere_colors = {
+    "Baggins": "#744110",
+    "Fellowship": "#7B341E",
+    "Leadership": "#44337A",
+    "Lore": "#21543D",
+    "Neutral": "#747474",
+    "Spirit": "#0A6E83",
+    "Tactics": "#822727",
+}
+
+icon_emojis = {
+    "Attack": "<:attack:1412792650024620174>",
+    "Defense": "<:defense:1412792686414528594>",
+    "HitPoints": "<:hit_points:1412792703653122180>",
+    "SauronsEye": "<:saurons_eye:1412792743616319488>",
+    "Threat": "<:threat:1412792778089300208>",
+    "Unique": "<:unique:1412792791620391002>",
+    "Willpower": "<:willpower:1412792800671436820>",
+}
+
 
 @tree.command(name="card", description="Find a card")
 # @discord.app_commands.guilds(discord.Object(id=383115373039321088))
@@ -154,16 +185,15 @@ async def card(
     embed = discord.Embed()
 
     ## Build embed title
-    sphere_emoji = (
-        f":{card.Front.Sphere.lower()}: "
-        if card.Front.Sphere and card.Front.Sphere != "Neutral"
-        else ""
-    )
-    unique_emoji = "<:unique:1412289547831742464> " if card.Front.IsUnique else ""
+    sphere_emoji = f"{sphere_emojis[card.Front.Sphere]} " if card.Front.Sphere else ""
+    unique_emoji = f"{icon_emojis['Unique']} " if card.Front.IsUnique else ""
 
     embed.title = f"{sphere_emoji}{unique_emoji}{card.Front.Title}"
 
     embed.url = f"https://lotr.cardgame.tools/#/cards/{card.Slug}"
+
+    if card.Front.Sphere:
+        embed.color = discord.Color.from_str(sphere_colors[card.Front.Sphere])
 
     if not image_only:
         ## Build embed description
@@ -172,11 +202,22 @@ async def card(
         description_parts.append(
             f"*{f"{card.Front.Sphere} " if card.Front.Sphere else ''}{card.Front.Type}{f" ({card.Front.Subtype})" if card.Front.Subtype else ""}{" - " if card.Front.Traits or card.Front.Keywords else ""}{f"{card.Front.Traits.replace(",", " ")}" if card.Front.Traits else ""}{" - " if card.Front.Traits and card.Front.Keywords else ""}{f"{card.Front.Keywords.replace(",", " ")}" if card.Front.Keywords else ""}*"
         )
-        description_parts.append(
-            f"{f"{card.Front.Willpower}:willpower: __ __" if card.Front.Willpower else ""}{f"{card.Front.ThreatStrength}:threat: __ __" if card.Front.ThreatStrength else ""}{f"{card.Front.Attack}<:attack:1412288381848653934> __ __" if card.Front.Attack else ""}{f"{card.Front.Defense}<:defense:1412288556092883067> __ __" if card.Front.Defense else ""}{f"{card.Front.HitPoints}:hitpoints: __ __" if card.Front.HitPoints else ""}"
-        )
+
+        stats_string = f"{f"{card.Front.Willpower} {icon_emojis['Willpower']} " if card.Front.Willpower else ""}{f"{card.Front.ThreatStrength} {icon_emojis['Threat']} " if card.Front.ThreatStrength else ""}{f"{card.Front.Attack} {icon_emojis['Attack']} " if card.Front.Attack else ""}{f"{card.Front.Defense} {icon_emojis['Defense']} " if card.Front.Defense else ""}{f"{card.Front.HitPoints} {icon_emojis['HitPoints']} " if card.Front.HitPoints else ""}"
+
+        if card.Front.EngagementCost:
+            stats_string += f"\nEngagement cost: {card.Front.EngagementCost}"
+        if card.Front.ResourceCost:
+            stats_string += f"\nResource cost: {card.Front.ResourceCost}"
+        if card.Front.ThreatCost:
+            stats_string += f"\nStarting threat: {card.Front.ThreatCost}"
+        if card.Front.QuestPoints:
+            stats_string += f"\nQuest points: {card.Front.QuestPoints}"
+
+        description_parts.append(stats_string.strip())
+
         description_parts.append(card.Front.Text)
-        description_parts.append(" __ __")
+        description_parts.append(" ** **")
 
         embed.description = "\n\n".join(
             [parts for parts in description_parts if len(parts) > 0]
@@ -203,7 +244,7 @@ async def card(
                 name="Found in Repackaged Products",
                 value="\n".join(
                     [
-                        f"{productCard.Quantity}x card #{productCard.Number} in [{productCard.Product.Name}](https://lotr.cardgame.tools/#/products/{productCard.Product.Code}){" Nightmare Deck" if productCard.Product.Type == "Nightmare_Expansion" else ""}"
+                        f"- {productCard.Quantity}x card #{productCard.Number} in [{productCard.Product.Name}](https://lotr.cardgame.tools/#/products/{productCard.Product.Code}){" Nightmare Deck" if productCard.Product.Type == "Nightmare_Expansion" else ""}"
                         for productCard in card.ProductCards
                         if productCard.Product.IsRepackage
                     ]
@@ -218,7 +259,7 @@ async def card(
                 name="Found in Original Releases",
                 value="\n".join(
                     [
-                        f"{productCard.Quantity}x card #{productCard.Number} in [{productCard.Product.Name}](https://lotr.cardgame.tools/#/products/{productCard.Product.Code}){" Nightmare Deck" if productCard.Product.Type == "Nightmare_Expansion" else ""}{f" ({productCard.Product.Cycle} cycle)" if productCard.Product.Cycle else ""}"
+                        f"- {productCard.Quantity}x card #{productCard.Number} in [{productCard.Product.Name}](https://lotr.cardgame.tools/#/products/{productCard.Product.Code}){" Nightmare Deck" if productCard.Product.Type == "Nightmare_Expansion" else ""}{f" ({productCard.Product.Cycle} cycle)" if productCard.Product.Cycle else ""}"
                         for productCard in card.ProductCards
                         if not productCard.Product.IsRepackage
                     ]
@@ -228,8 +269,21 @@ async def card(
 
     image_urls = set(
         [
-            f"https://images.cardgame.tools/lotr/sm/{productCard.FrontImageUrl}"
-            for productCard in card.ProductCards
+            x
+            for xs in [
+                (
+                    [
+                        f"https://images.cardgame.tools/lotr/sm/{productCard.FrontImageUrl}",
+                        f"https://images.cardgame.tools/lotr/sm/{productCard.BackImageUrl}",
+                    ]
+                    if productCard.BackImageUrl
+                    else [
+                        f"https://images.cardgame.tools/lotr/sm/{productCard.FrontImageUrl}"
+                    ]
+                )
+                for productCard in card.ProductCards
+            ]
+            for x in xs
         ]
     )
 
@@ -302,4 +356,5 @@ async def card_autocomplete(
         ]
 
 
-client.run(TOKEN, log_level=logging.INFO)
+if __name__ == "__main__":
+    client.run(TOKEN, log_level=logging.INFO)

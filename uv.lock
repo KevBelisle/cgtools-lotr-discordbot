@@ -128,10 +128,16 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "discord-py" },
+    { name = "peewee" },
+    { name = "py-dotenv" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "discord-py", specifier = ">=2.6.2" }]
+requires-dist = [
+    { name = "discord-py", specifier = ">=2.6.2" },
+    { name = "peewee", specifier = ">=3.18.2" },
+    { name = "py-dotenv", specifier = ">=0.1" },
+]
 
 [[package]]
 name = "discord-py"
@@ -244,6 +250,12 @@ wheels = [
 ]
 
 [[package]]
+name = "peewee"
+version = "3.18.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/04/89/76f6f1b744c8608e0d416b588b9d63c2a500ff800065ae610f7c80f532d6/peewee-3.18.2.tar.gz", hash = "sha256:77a54263eb61aff2ea72f63d2eeb91b140c25c1884148e28e4c0f7c4f64996a0", size = 949220, upload-time = "2025-07-08T12:52:03.941Z" }
+
+[[package]]
 name = "propcache"
 version = "0.3.2"
 source = { registry = "https://pypi.org/simple" }
@@ -282,6 +294,14 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/9a/4c/b0fe775a2bdd01e176b14b574be679d84fc83958335790f7c9a686c1f468/propcache-0.3.2-cp313-cp313t-win32.whl", hash = "sha256:f86e5d7cd03afb3a1db8e9f9f6eff15794e79e791350ac48a8c924e6f439f394", size = 41175, upload-time = "2025-06-09T22:55:38.436Z" },
     { url = "https://files.pythonhosted.org/packages/a4/ff/47f08595e3d9b5e149c150f88d9714574f1a7cbd89fe2817158a952674bf/propcache-0.3.2-cp313-cp313t-win_amd64.whl", hash = "sha256:9704bedf6e7cbe3c65eca4379a9b53ee6a83749f047808cbb5044d40d7d72198", size = 44857, upload-time = "2025-06-09T22:55:39.687Z" },
     { url = "https://files.pythonhosted.org/packages/cc/35/cc0aaecf278bb4575b8555f2b137de5ab821595ddae9da9d3cd1da4072c7/propcache-0.3.2-py3-none-any.whl", hash = "sha256:98f1ec44fb675f5052cccc8e609c46ed23a35a1cfd18545ad4e29002d858a43f", size = 12663, upload-time = "2025-06-09T22:56:04.484Z" },
+]
+
+[[package]]
+name = "py-dotenv"
+version = "0.1"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5e/3a/32e68bcdf9419611af95be030bb724c1a40f72bc9b62be28b9c1a08217b2/py_dotenv-0.1-py3-none-any.whl", hash = "sha256:548c588c3b7e2ee2142b0ac97d2912d223ff38e874302426bbb6c21353817cc2", size = 3634, upload-time = "2016-12-13T03:32:02.244Z" },
 ]
 
 [[package]]
