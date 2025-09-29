@@ -3,6 +3,7 @@ from src.database import *
 
 
 @tree.command(name="glossary", description="Lookup a term in the glossary")
+# @discord.app_commands.guilds(discord.Object(id=383115373039321088))
 @discord.app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @discord.app_commands.allowed_installs(guilds=True, users=True)
 @discord.app_commands.describe(
