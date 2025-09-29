@@ -9,12 +9,13 @@ from src.commands.card import *
 from src.commands.glossary import *
 
 
-logging.basicConfig(level=logging.INFO)
-
 load_dotenv()
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 TOKEN: str = os.getenv("TOKEN") or ""
 
 
 if __name__ == "__main__":
-    client.run(TOKEN, log_level=logging.INFO)
+    client.run(TOKEN, log_level=logging.DEBUG)
