@@ -1,4 +1,5 @@
 import discord
+import logging
 
 
 client = discord.Client(intents=discord.Intents.default())
@@ -8,12 +9,12 @@ tree = discord.app_commands.CommandTree(client)
 
 @client.event
 async def on_ready() -> None:
-    print(f"Logged in as {client.user}")
+    logging.info(f"Logged in as {client.user}")
     await tree.sync()
     await tree.sync(guild=discord.Object(id=383115373039321088))
-    print("Synced!")
-    print([k.name for k in tree.walk_commands()])
-    print(
+    logging.info("Synced!")
+    logging.info([k.name for k in tree.walk_commands()])
+    logging.info(
         [
             k.name
             for k in tree.walk_commands(guild=discord.Object(id=383115373039321088))
