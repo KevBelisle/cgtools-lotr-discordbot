@@ -61,7 +61,8 @@ async def term_autocomplete(
 
     return [
         discord.app_commands.Choice(
-            name=f"{entry.Term} ({entry.Type})", value=entry.Term
+            name=f"{entry.Term} {f"({entry.Type})" if entry.Type != "TBD" else ""}",
+            value=entry.Term,
         )
         for entry in query
     ]
