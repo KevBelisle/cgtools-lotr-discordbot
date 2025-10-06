@@ -1,3 +1,5 @@
+from urllib.parse import quote
+
 from src.discord_client import *
 from src.database import *
 
@@ -28,7 +30,9 @@ async def glossary(
     ## Build embed title
     embed.title = f"{db_term.Term}"
 
-    embed.url = f"https://lotr.cardgame.tools/#/glossary/{db_term.Term}"
+    embed.url = (
+        f"https://lotr.cardgame.tools/#/glossary/{quote(db_term.Term, safe='!~*\'()')}"
+    )
 
     ## Build embed description
     description_parts: list[str] = []
@@ -44,7 +48,7 @@ async def glossary(
 
     if db_term.SeeAlso:
         value = [
-            f"[{term}](https://lotr.cardgame.tools/#/glossary/{term})"
+            f"[{term}](https://lotr.cardgame.tools/#/glossary/{quote(term, safe='!~*\'()')})"
             for term in db_term.SeeAlso.split(";")
         ]
 
