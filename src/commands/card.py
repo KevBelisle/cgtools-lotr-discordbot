@@ -2,6 +2,7 @@ import copy
 
 from src.discord_client import *
 from src.database import *
+from src.helpers.card_text_formatting import format_card_text, format_number
 
 
 @tree.command(name="card", description="Find a card")
@@ -48,20 +49,20 @@ async def card(
             f"*{f"{card.Front.Sphere} " if card.Front.Sphere else ''}{card.Front.Type}{f" ({card.Front.Subtype})" if card.Front.Subtype else ""}{" - " if card.Front.Traits or card.Front.Keywords else ""}{f"{card.Front.Traits.replace(",", " ")}" if card.Front.Traits else ""}{" - " if card.Front.Traits and card.Front.Keywords else ""}{f"{card.Front.Keywords.replace(",", " ")}" if card.Front.Keywords else ""}*"
         )
 
-        stats_string = f"{f"{card.Front.Willpower} {icon_emojis['Willpower']} " if card.Front.Willpower else ""}{f"{card.Front.ThreatStrength} {icon_emojis['Threat']} " if card.Front.ThreatStrength else ""}{f"{card.Front.Attack} {icon_emojis['Attack']} " if card.Front.Attack else ""}{f"{card.Front.Defense} {icon_emojis['Defense']} " if card.Front.Defense else ""}{f"{card.Front.HitPoints} {icon_emojis['HitPoints']} " if card.Front.HitPoints else ""}"
+        stats_string = f"{f"{format_number(card.Front.Willpower)} {icon_emojis['Willpower']} " if card.Front.Willpower else ""}{f"{format_number(card.Front.ThreatStrength)} {icon_emojis['Threat']} " if card.Front.ThreatStrength else ""}{f"{format_number(card.Front.Attack)} {icon_emojis['Attack']} " if card.Front.Attack else ""}{f"{format_number(card.Front.Defense)} {icon_emojis['Defense']} " if card.Front.Defense else ""}{f"{format_number(card.Front.HitPoints)} {icon_emojis['HitPoints']} " if card.Front.HitPoints else ""}"
 
         if card.Front.EngagementCost:
-            stats_string += f"\nEngagement cost: {card.Front.EngagementCost}"
+            stats_string += f"\nEngagement cost: {format_number(card.Front.EngagementCost)}"
         if card.Front.ResourceCost:
-            stats_string += f"\nResource cost: {card.Front.ResourceCost}"
+            stats_string += f"\nResource cost: {format_number(card.Front.ResourceCost)}"
         if card.Front.ThreatCost:
-            stats_string += f"\nStarting threat: {card.Front.ThreatCost}"
+            stats_string += f"\nStarting threat: {format_number(card.Front.ThreatCost)}"
         if card.Front.QuestPoints:
-            stats_string += f"\nQuest points: {card.Front.QuestPoints}"
+            stats_string += f"\nQuest points: {format_number(card.Front.QuestPoints)}"
 
         description_parts.append(stats_string.strip())
 
-        description_parts.append(card.Front.Text)
+        description_parts.append(format_card_text(card.Front.Text) if card.Front.Text else "")
         description_parts.append(" ** **")
 
         embed.description = "\n\n".join(
@@ -73,7 +74,7 @@ async def card(
         if card.Front.ShadowEffect:
             embed.add_field(
                 name="Shadow Effect",
-                value=f"*{card.Front.ShadowEffect}*",
+                value=f"*{format_card_text(card.Front.ShadowEffect)}*",
                 inline=False,
             )
 
