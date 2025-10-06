@@ -33,12 +33,33 @@ async def glossary(
     ## Build embed description
     description_parts: list[str] = []
 
-    description_parts.append(f"*({db_term.Type})*")
+    if db_term.Type != "TBD":
+        description_parts.append(f"*({db_term.Type})*")
+
     description_parts += db_term.Definition.split("\n")
 
     embed.description = "\n\n".join(
         [parts for parts in description_parts if len(parts) > 0]
     )
+
+    if db_term.SeeAlso:
+        value = [
+            f"[{term}](https://lotr.cardgame.tools/#/glossary/{term})"
+            for term in db_term.SeeAlso.split(";")
+        ]
+
+        embed.add_field(
+            name="See also:",
+            value=", ".join(value),
+            inline=False,
+        )
+
+    if db_term.Source:
+        embed.add_field(
+            name="Source:",
+            value=db_term.Source,
+            inline=False,
+        )
 
     await interaction.response.send_message(embed=embed, ephemeral=just_for_me)
 

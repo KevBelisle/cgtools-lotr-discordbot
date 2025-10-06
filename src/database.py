@@ -81,6 +81,8 @@ class Glossary(peewee.Model):
     Term = peewee.CharField(primary_key=True)
     Type = peewee.CharField()
     Definition = peewee.CharField()
+    SeeAlso = peewee.CharField(null=True)
+    Source = peewee.CharField(null=True)
 
     class Meta:
         database = database
