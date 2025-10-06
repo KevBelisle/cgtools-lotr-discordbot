@@ -28,7 +28,7 @@ async def glossary(
     ## Build embed title
     embed.title = f"{db_term.Term}"
 
-    # embed.url = f"https://lotr.cardgame.tools/#/cards/{card.Slug}"
+    embed.url = f"https://lotr.cardgame.tools/#/glossary/{db_term.Term}"
 
     ## Build embed description
     description_parts: list[str] = []
