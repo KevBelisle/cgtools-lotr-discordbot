@@ -1,7 +1,10 @@
 import copy
 
-from src.discord_client import *
-from src.database import *
+import discord
+import peewee
+
+from src.database import Card, CardSide
+from src.discord_client import icon_emojis, sphere_colors, sphere_emojis, tree
 from src.helpers.card_text_formatting import format_card_text, format_number
 
 
@@ -46,13 +49,15 @@ async def card(
         description_parts = []
 
         description_parts.append(
-            f"*{f"{card.Front.Sphere} " if card.Front.Sphere else ''}{card.Front.Type}{f" ({card.Front.Subtype})" if card.Front.Subtype else ""}{" - " if card.Front.Traits or card.Front.Keywords else ""}{f"{card.Front.Traits.replace(",", " ")}" if card.Front.Traits else ""}{" - " if card.Front.Traits and card.Front.Keywords else ""}{f"{card.Front.Keywords.replace(",", " ")}" if card.Front.Keywords else ""}*"
+            f"""*{f"{card.Front.Sphere} " if card.Front.Sphere else ""}{card.Front.Type}{f" ({card.Front.Subtype})" if card.Front.Subtype else ""}{" - " if card.Front.Traits or card.Front.Keywords else ""}{f"{card.Front.Traits.replace(',', ' ')}" if card.Front.Traits else ""}{" - " if card.Front.Traits and card.Front.Keywords else ""}{f"{card.Front.Keywords.replace(',', ' ')}" if card.Front.Keywords else ""}*"""
         )
 
-        stats_string = f"{f"{format_number(card.Front.Willpower)} {icon_emojis['Willpower']} " if card.Front.Willpower else ""}{f"{format_number(card.Front.ThreatStrength)} {icon_emojis['Threat']} " if card.Front.ThreatStrength else ""}{f"{format_number(card.Front.Attack)} {icon_emojis['Attack']} " if card.Front.Attack else ""}{f"{format_number(card.Front.Defense)} {icon_emojis['Defense']} " if card.Front.Defense else ""}{f"{format_number(card.Front.HitPoints)} {icon_emojis['HitPoints']} " if card.Front.HitPoints else ""}"
+        stats_string = f"""{f"{format_number(card.Front.Willpower)} {icon_emojis['Willpower']} " if card.Front.Willpower else ""}{f"{format_number(card.Front.ThreatStrength)} {icon_emojis['Threat']} " if card.Front.ThreatStrength else ""}{f"{format_number(card.Front.Attack)} {icon_emojis['Attack']} " if card.Front.Attack else ""}{f"{format_number(card.Front.Defense)} {icon_emojis['Defense']} " if card.Front.Defense else ""}{f"{format_number(card.Front.HitPoints)} {icon_emojis['HitPoints']} " if card.Front.HitPoints else ""}"""
 
         if card.Front.EngagementCost:
-            stats_string += f"\nEngagement cost: {format_number(card.Front.EngagementCost)}"
+            stats_string += (
+                f"\nEngagement cost: {format_number(card.Front.EngagementCost)}"
+            )
         if card.Front.ResourceCost:
             stats_string += f"\nResource cost: {format_number(card.Front.ResourceCost)}"
         if card.Front.ThreatCost:
@@ -62,7 +67,9 @@ async def card(
 
         description_parts.append(stats_string.strip())
 
-        description_parts.append(format_card_text(card.Front.Text) if card.Front.Text else "")
+        description_parts.append(
+            format_card_text(card.Front.Text) if card.Front.Text else ""
+        )
         description_parts.append(" ** **")
 
         embed.description = "\n\n".join(
@@ -90,7 +97,7 @@ async def card(
                 name="Found in Repackaged Products",
                 value="\n".join(
                     [
-                        f"- {productCard.Quantity}x card #{productCard.Number} in [{productCard.Product.Name}](https://lotr.cardgame.tools/#/products/{productCard.Product.Code}){" Nightmare Deck" if productCard.Product.Type == "Nightmare_Expansion" else ""}"
+                        f"- {productCard.Quantity}x card #{productCard.Number} in [{productCard.Product.Name}](https://lotr.cardgame.tools/#/products/{productCard.Product.Code}){' Nightmare Deck' if productCard.Product.Type == 'Nightmare_Expansion' else ''}"
                         for productCard in card.ProductCards
                         if productCard.Product.IsRepackage
                     ]
@@ -105,7 +112,7 @@ async def card(
                 name="Found in Original Releases",
                 value="\n".join(
                     [
-                        f"- {productCard.Quantity}x card #{productCard.Number} in [{productCard.Product.Name}](https://lotr.cardgame.tools/#/products/{productCard.Product.Code}){" Nightmare Deck" if productCard.Product.Type == "Nightmare_Expansion" else ""}{f" ({productCard.Product.Cycle} cycle)" if productCard.Product.Cycle else ""}"
+                        f"- {productCard.Quantity}x card #{productCard.Number} in [{productCard.Product.Name}](https://lotr.cardgame.tools/#/products/{productCard.Product.Code}){' Nightmare Deck' if productCard.Product.Type == 'Nightmare_Expansion' else ''}{f' ({productCard.Product.Cycle} cycle)' if productCard.Product.Cycle else ''}"
                         for productCard in card.ProductCards
                         if not productCard.Product.IsRepackage
                     ]
@@ -168,7 +175,7 @@ async def card_autocomplete(
 
     simple_choices: list[dict[str, str]] = [
         {
-            "name": f"{f"{card.Front.Sphere} " if card.Front.Sphere else ''}{card.Front.Type} - {card.Front.Title}",
+            "name": f"{f'{card.Front.Sphere} ' if card.Front.Sphere else ''}{card.Front.Type} - {card.Front.Title}",
             "value": card.Slug,
         }
         for card in query
@@ -184,10 +191,10 @@ async def card_autocomplete(
         choices: list[dict[str, str]] = []
 
         for card in query:
-            name = f"{f"{card.Front.Sphere} " if card.Front.Sphere else ''}{card.Front.Type} - {card.Front.Title}"
+            name = f"{f'{card.Front.Sphere} ' if card.Front.Sphere else ''}{card.Front.Type} - {card.Front.Title}"
 
             if len([n for n in simple_choices_names if n == name]) > 1:
-                name += f" ({", ".join(set([ productCard.Product.Name for productCard in card.ProductCards ]))})"
+                name += f" ({', '.join(set([productCard.Product.Name for productCard in card.ProductCards]))})"
 
             choices.append(
                 {
